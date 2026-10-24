@@ -12,9 +12,13 @@ Incluye además el suplemento **“Qué aprender para seguir siendo relevante”
 
 ![Suplemento: qué aprender](docs/screenshots/aprender-escritorio.png)
 
+| Opciones en escritorio | Opciones en móvil |
+| --- | --- |
+| ![Opciones: frecuencia de actualización](docs/screenshots/opciones-escritorio.png) | ![Opciones en móvil](docs/screenshots/opciones-movil.png) |
+
 ## Qué hace
 
-- **Recolecta** noticias al arrancar, cada 30 minutos y bajo demanda (botón “Actualizar noticias” o `POST /api/refresh`) desde fuentes gratuitas y **sin API keys**: feeds RSS/Atom (Hugging Face, Google Research, Google AI, Google Developers, Apple ML Research, Meta Engineering, PyTorch, Ollama, arXiv, TechCrunch AI, The Verge AI, MarkTechPost, VentureBeat), Hacker News vía la API de Algolia y r/LocalLLaMA.
+- **Recolecta** noticias según la frecuencia elegida en **Opciones** (por defecto, una vez al día a las 7:00 a. m., hora de Bogotá) y bajo demanda (botón “Actualizar ahora” o `POST /api/refresh`) desde fuentes gratuitas y **sin API keys**: feeds RSS/Atom (Hugging Face, Google Research, Google AI, Google Developers, Apple ML Research, Meta Engineering, PyTorch, Ollama, arXiv, TechCrunch AI, The Verge AI, MarkTechPost, VentureBeat), Hacker News vía la API de Algolia y r/LocalLLaMA.
 - **Normaliza** cada nota (título, fuente, URL, fecha, extracto corto, imagen si existe), **deduplica** por URL canónica y por similitud de títulos, y **ordena** con una heurística transparente que favorece lo on-device.
 - **Respeta a los medios**: nunca copia el texto completo; muestra solo titular, un extracto de máx. 280 caracteres, el crédito a la fuente y el enlace al original.
 - **Tolerante a fallos**: si una fuente cae se omite; si fallan todas, sirve la última caché; si no hay caché, usa un dataset de muestra incluido y lo **indica claramente** en la portada.
@@ -33,14 +37,18 @@ periodico-ia/
 │   │   ├── aggregator.ts       # orquesta, aplica fallback y guarda caché
 │   │   ├── cache.ts            # caché JSON con escritura atómica
 │   │   ├── learning.ts         # ruta de aprendizaje + temas en tendencia
-│   │   ├── app.ts / index.ts   # rutas REST, estáticos en producción, programación
+│   │   ├── settings.ts         # opciones de actualización: validación y settings.json
+│   │   ├── scheduler.ts        # planificador: próxima ejecución (diaria con zona horaria o por intervalo)
+│   │   ├── app.ts / index.ts   # rutas REST, estáticos en producción, arranque del planificador
 │   │   └── check-*.ts          # verificadores de fuentes y enlaces
 │   ├── data/sample-news.json   # dataset de muestra (marcado como muestra)
-│   └── test/                   # Vitest: normalización, dedup, ranking, API, fallback
+│   ├── data/settings.json      # opciones guardadas (se crea con valores por defecto; no se versiona)
+│   └── test/                   # Vitest: normalización, dedup, ranking, API, fallback, planificador, opciones
 ├── web/                     # Angular 22 (standalone components + signals, sin zone.js)
 │   └── src/app/
 │       ├── news.service.ts     # estado con signals + HttpClient
-│       └── components/         # masthead, front-page, article-card, learning-section
+│       ├── settings.service.ts # GET/PUT /api/settings
+│       └── components/         # masthead, front-page, article-card, learning-section, options-section
 ├── content/learning.json    # ← ruta “Qué aprender” (editable sin tocar código)
 ├── scripts/screenshots.mjs  # capturas con Playwright
 └── .github/workflows/ci.yml # lint, tests y build
@@ -55,7 +63,32 @@ Flujo: `fuentes → fetchers → normalize → filtro de relevancia → dedup �
 | `GET /api/news?section=&source=&q=&page=&pageSize=` | Noticias ordenadas. `section`: `on-device`, `modelos`, `investigacion`, `industria`, `herramientas`. Responde además `mode` (`live`, `cache` o `sample`) y `fetchedAt`. |
 | `GET /api/sources` | Estado de cada fuente en la última actualización (ok, cantidad, error). |
 | `GET /api/learning` | Ruta de aprendizaje con menciones en noticias y bandera `trending`. |
-| `POST /api/refresh` | Fuerza una actualización (las peticiones simultáneas comparten la misma descarga). |
+| `POST /api/refresh` | Fuerza una actualización (las peticiones simultáneas comparten la misma descarga) y reprograma la siguiente. |
+| `GET /api/settings` | Opciones de actualización, más `lastRefreshAt` y `nextRefreshAt` (ISO 8601), `allowedIntervals`, `minIntervalMinutes` y `adminTokenRequired`. |
+| `PUT /api/settings` | Cambia las opciones (cuerpo JSON parcial: `mode`, `intervalMinutes`, `dailyTime`, `timezone`). Valida en el servidor: responde `400` con `error` en español si el valor no es válido y `401` si falta el token de administrador. Reprograma de inmediato. |
+
+## Opciones: frecuencia de actualización
+
+En la sección **Opciones** (`/opciones`, enlazada en la barra de navegación) eliges cada cuánto se buscan noticias nuevas:
+
+| Opción | `mode` | Valor |
+| --- | --- | --- |
+| Cada 30 minutos (la más frecuente) | `interval` | `intervalMinutes: 30` |
+| Cada hora, 2 h, 3 h, 6 h o 12 h | `interval` | `60`, `120`, `180`, `360`, `720` |
+| **Diaria a una hora** (la menos frecuente, **por defecto**) | `daily` | `dailyTime: "07:00"` (HH:mm, 24 h) |
+
+- **Por defecto**: diaria a las **07:00** en la zona **`America/Bogota`**. La zona horaria también es configurable (cualquier nombre IANA) y se muestra en la interfaz, por ejemplo: “Próxima actualización: mañana 7:00 a. m. (hora de Bogotá)”.
+- **Validación**: el servidor rechaza cualquier intervalo menor de 30 minutos o fuera de la lista, horas mal escritas, zonas desconocidas y campos que no existen, con mensajes claros en español.
+- **Persistencia**: se guardan en `server/data/settings.json` (o en la ruta de `SETTINGS_FILE`). Si el archivo no existe o está dañado, se crea con los valores por defecto. No se versiona.
+- **Planificador** (`server/src/scheduler.ts`): en vez de un `setInterval` fijo, calcula la próxima ejecución con `Intl` (sin dependencias), contemplando los cambios de horario: en el salto de primavera una hora inexistente se corre hacia adelante y en el retroceso de otoño se usa la primera ocurrencia. Al guardar opciones o pulsar “Actualizar ahora” se reprograma de inmediato. Un intento fallido también cuenta, para no reintentar en bucle.
+- **Al arrancar**: si no hay caché (datos de muestra), si la caché es más vieja que el intervalo o si se perdió la última franja diaria, actualiza una vez; si no, espera a la próxima hora programada.
+- **Seguridad**: la página de opciones está pensada como herramienta local, sin autenticación. **En un despliegue público protege `PUT /api/settings`** definiendo `ADMIN_TOKEN`: con esa variable, el `PUT` exige la cabecera `X-Admin-Token: <token>` (o `Authorization: Bearer <token>`) y la interfaz muestra un campo para escribirlo. Sin `ADMIN_TOKEN`, el `PUT` queda abierto. `POST /api/refresh` sigue abierto (las peticiones simultáneas se agrupan en una sola descarga); protégelo en tu proxy si lo necesitas.
+
+```bash
+curl localhost:3000/api/settings
+curl -X PUT localhost:3000/api/settings -H 'Content-Type: application/json' \
+  -H 'X-Admin-Token: mi-token' -d '{"mode":"interval","intervalMinutes":120}'
+```
 
 ### Ranking transparente
 
@@ -86,7 +119,11 @@ npm run build
 npm start          # http://localhost:3000
 ```
 
-Variables opcionales: `PORT` (3000), `REFRESH_MINUTES` (30), `CACHE_FILE`, `LEARNING_FILE`.
+Variables opcionales: `PORT` (3000), `CACHE_FILE`, `LEARNING_FILE`, `SETTINGS_FILE` (por defecto `server/data/settings.json`) y `ADMIN_TOKEN` (protege `PUT /api/settings`).
+
+> `REFRESH_MINUTES` **ya no se usa**: la frecuencia se configura en Opciones (o en `settings.json`). Si sigue definida, el servidor solo muestra un aviso al arrancar.
+>
+> Tras `npm run build`, reinicia `npm start`: el servidor registra los archivos estáticos (con hash) al arrancar.
 
 Otros comandos:
 
@@ -96,6 +133,7 @@ npm run lint                     # ESLint + typecheck
 npm run check:sources            # verifica cada fuente y cuántas notas aporta
 npm run check:links -w server    # verifica los enlaces de content/learning.json
 npm run screenshots              # capturas en docs/screenshots (con el servidor corriendo)
+npm run screenshots -- opciones  # solo las capturas cuyo nombre contenga “opciones”
 docker build -t periodico-ia . && docker run -p 3000:3000 periodico-ia
 ```
 
@@ -139,8 +177,8 @@ Todo está en `content/learning.json`: temas, nivel, por qué importa, palabras 
 
 ## Tests
 
-- **Servidor** (Vitest): normalización (HTML, extractos, URL canónicas, fechas), deduplicación, detección on-device, clasificación por sección, puntaje y su desglose, pipeline, API REST y fallback.
-- **Frontend** (Vitest vía `ng test`): `ArticleCard` (enlace al original, crédito, variantes), `FrontPage` (nota principal on-device, diversidad por fuente, secciones) y `Masthead` (aviso de datos de muestra y navegación).
+- **Servidor** (Vitest): normalización (HTML, extractos, URL canónicas, fechas), deduplicación, detección on-device, clasificación por sección, puntaje y su desglose, pipeline, API REST y fallback; planificador (diaria antes/después de la hora, día local vs. UTC, otras zonas, cambios de horario, intervalos, arranque y reprogramación), validación de opciones, `GET/PUT /api/settings` y `ADMIN_TOKEN`.
+- **Frontend** (Vitest vía `ng test`): `ArticleCard` (enlace al original, crédito, variantes), `FrontPage` (nota principal on-device, diversidad por fuente, secciones) `Masthead` (aviso de datos de muestra y navegación) y `OptionsSection` (presets, guardado, errores del servidor, validación de la hora, “Actualizar ahora”, token y formato “hoy/mañana … (hora de Bogotá)”).
 
 ## Licencia
 

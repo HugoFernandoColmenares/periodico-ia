@@ -1,0 +1,147 @@
+{
+  "title": "Qué aprender para seguir siendo relevante",
+  "intro": "Una ruta práctica para desarrolladores en la era de la IA. No hace falta aprenderlo todo de una vez: elige un tema, construye algo pequeño y publícalo. Todos los recursos son gratuitos. Este archivo (content/learning.json) se puede editar sin tocar código.",
+  "updatedAt": "2026-10-23",
+  "topics": [
+    {
+      "id": "fundamentos-ml",
+      "title": "Fundamentos de ML y LLM",
+      "level": "básico",
+      "why": "Entender tokens, embeddings, atención y entrenamiento vs. inferencia te permite razonar sobre costos, límites y alucinaciones en vez de usar la IA como caja negra.",
+      "keywords": ["transformer", "LLM", "fine-tun", "training", "embedding"],
+      "resources": [
+        { "title": "Machine Learning Crash Course (Google)", "url": "https://developers.google.com/machine-learning/crash-course", "type": "curso" },
+        { "title": "Curso de LLM de Hugging Face (incluye español)", "url": "https://huggingface.co/learn/llm-course", "type": "curso" },
+        { "title": "Neural Networks: Zero to Hero (Andrej Karpathy)", "url": "https://karpathy.ai/zero-to-hero.html", "type": "video" },
+        { "title": "Redes neuronales visualmente (3Blue1Brown)", "url": "https://www.3blue1brown.com/topics/neural-networks", "type": "video" }
+      ]
+    },
+    {
+      "id": "modelos-locales",
+      "title": "Correr modelos en local: llama.cpp, Ollama, LM Studio",
+      "level": "básico",
+      "why": "Ejecutar un modelo en tu laptop te enseña memoria, contexto, velocidad (tokens/s) y privacidad, y te deja prototipar sin pagar APIs.",
+      "keywords": ["llama.cpp", "ollama", "lm studio", "gguf", "local llm", "locally"],
+      "resources": [
+        { "title": "llama.cpp (repositorio y guía)", "url": "https://github.com/ggml-org/llama.cpp", "type": "documentación" },
+        { "title": "Documentación de Ollama", "url": "https://docs.ollama.com/", "type": "documentación" },
+        { "title": "Documentación de LM Studio", "url": "https://lmstudio.ai/docs/app", "type": "documentación" },
+        { "title": "Modelos GGUF en Hugging Face", "url": "https://huggingface.co/docs/hub/gguf", "type": "documentación" }
+      ]
+    },
+    {
+      "id": "cuantizacion",
+      "title": "Cuantización y optimización de modelos",
+      "level": "intermedio",
+      "why": "Pasar de 16 a 4 bits es lo que hace posible que un modelo de 8B quepa en un teléfono o en una GPU de consumo. Saber elegir el nivel de cuantización es una habilidad muy demandada.",
+      "keywords": ["quantiz", "4-bit", "int4", "int8", "gptq", "awq", "distill"],
+      "resources": [
+        { "title": "A Visual Guide to Quantization (Maarten Grootendorst)", "url": "https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-quantization", "type": "artículo" },
+        { "title": "Cuantización en Transformers (Hugging Face)", "url": "https://huggingface.co/docs/transformers/main/en/quantization/overview", "type": "documentación" },
+        { "title": "Guía conceptual de cuantización (Optimum)", "url": "https://huggingface.co/docs/optimum/concept_guides/quantization", "type": "documentación" }
+      ]
+    },
+    {
+      "id": "on-device",
+      "title": "IA en el dispositivo: móvil, navegador y edge",
+      "level": "intermedio",
+      "why": "Los modelos pequeños (Gemma, Phi, Qwen, Llama 1–3B, LFM, SmolLM) ya corren en teléfonos y navegadores. Latencia cero, privacidad y costo marginal casi nulo: es el sector que más crece.",
+      "keywords": ["on-device", "edge", "mobile", "litert", "mediapipe", "executorch", "core ml", "onnx", "webgpu", "npu", "mlx"],
+      "resources": [
+        { "title": "Google AI Edge: LiteRT y MediaPipe", "url": "https://ai.google.dev/edge", "type": "documentación" },
+        { "title": "LLM Inference API de MediaPipe (Android, iOS, Web)", "url": "https://ai.google.dev/edge/mediapipe/solutions/genai/llm_inference", "type": "documentación" },
+        { "title": "ExecuTorch (PyTorch en el dispositivo)", "url": "https://docs.pytorch.org/executorch/stable/index.html", "type": "documentación" },
+        { "title": "Core ML (Apple)", "url": "https://developer.apple.com/machine-learning/core-ml/", "type": "documentación" },
+        { "title": "ONNX Runtime", "url": "https://onnxruntime.ai/docs/", "type": "documentación" },
+        { "title": "WebLLM (MLC): LLMs en el navegador con WebGPU", "url": "https://webllm.mlc.ai/", "type": "demo" },
+        { "title": "Transformers.js", "url": "https://huggingface.co/docs/transformers.js/index", "type": "documentación" },
+        { "title": "MLX (Apple silicon)", "url": "https://ml-explore.github.io/mlx/build/html/index.html", "type": "documentación" }
+      ]
+    },
+    {
+      "id": "rag",
+      "title": "RAG, embeddings y búsqueda vectorial",
+      "level": "intermedio",
+      "why": "La mayoría de productos con IA en empresas son RAG: conectar un modelo con documentos propios. Aprende chunking, embeddings, re-ranking y cómo medir si la respuesta es correcta.",
+      "keywords": ["rag", "retrieval", "embedding", "vector"],
+      "resources": [
+        { "title": "Advanced RAG (Hugging Face Cookbook)", "url": "https://huggingface.co/learn/cookbook/advanced_rag", "type": "tutorial" },
+        { "title": "pgvector: búsqueda vectorial en Postgres", "url": "https://github.com/pgvector/pgvector", "type": "documentación" },
+        { "title": "Sentence Transformers", "url": "https://sbert.net/", "type": "documentación" }
+      ]
+    },
+    {
+      "id": "sdks",
+      "title": "SDKs de IA, agentes y MCP",
+      "level": "intermedio",
+      "why": "Como dev full-stack, tu ventaja es integrar: streaming, tool calling, salidas estructuradas y agentes con el protocolo MCP, con TypeScript de punta a punta.",
+      "keywords": ["sdk", "agent", "mcp", "tool calling", "api"],
+      "resources": [
+        { "title": "AI SDK (TypeScript)", "url": "https://ai-sdk.dev/docs/introduction", "type": "documentación" },
+        { "title": "Model Context Protocol", "url": "https://modelcontextprotocol.io/", "type": "documentación" },
+        { "title": "LangChain.js", "url": "https://js.langchain.com/", "type": "documentación" },
+        { "title": "Curso de agentes de Hugging Face", "url": "https://huggingface.co/learn/agents-course", "type": "curso" }
+      ]
+    },
+    {
+      "id": "evaluacion",
+      "title": "Evaluación (evals) y calidad",
+      "level": "avanzado",
+      "why": "Sin evals no sabes si un cambio de prompt o de modelo mejoró o empeoró tu producto. Es lo que separa una demo de un sistema en producción.",
+      "keywords": ["benchmark", "eval", "leaderboard"],
+      "resources": [
+        { "title": "Your AI Product Needs Evals (Hamel Husain)", "url": "https://hamel.dev/blog/posts/evals/", "type": "artículo" },
+        { "title": "promptfoo: pruebas de prompts y modelos", "url": "https://www.promptfoo.dev/docs/intro/", "type": "documentación" },
+        { "title": "lm-evaluation-harness (EleutherAI)", "url": "https://github.com/EleutherAI/lm-evaluation-harness", "type": "documentación" }
+      ]
+    },
+    {
+      "id": "typescript-node",
+      "title": "TypeScript, Node.js y Angular moderno",
+      "level": "básico",
+      "why": "La IA genera código, pero alguien tiene que entenderlo, tiparlo y mantenerlo. Dominar tu stack (signals, standalone, streams, async) te hace mucho más productivo con asistentes de código.",
+      "keywords": ["typescript", "javascript", "node", "angular"],
+      "resources": [
+        { "title": "TypeScript Handbook", "url": "https://www.typescriptlang.org/docs/handbook/intro.html", "type": "documentación" },
+        { "title": "Aprende Node.js (sitio oficial)", "url": "https://nodejs.org/en/learn", "type": "documentación" },
+        { "title": "Signals en Angular", "url": "https://angular.dev/guide/signals", "type": "documentación" }
+      ]
+    },
+    {
+      "id": "diseno-software",
+      "title": "Diseño de software y fundamentos de programación",
+      "level": "intermedio",
+      "why": "Patrones, principios SOLID, arquitectura y diseño de sistemas no pasan de moda: son justamente lo que preguntan en entrevistas y lo que la IA no decide por ti.",
+      "keywords": ["architecture", "design pattern", "system design"],
+      "resources": [
+        { "title": "Refactoring.Guru: patrones de diseño (en español)", "url": "https://refactoring.guru/es/design-patterns", "type": "guía" },
+        { "title": "System Design Primer", "url": "https://github.com/donnemartin/system-design-primer", "type": "guía" },
+        { "title": "Arquitectura de software (Martin Fowler)", "url": "https://martinfowler.com/architecture/", "type": "artículo" }
+      ]
+    },
+    {
+      "id": "despliegue",
+      "title": "Despliegue: contenedores, edge y nube",
+      "level": "intermedio",
+      "why": "Saber empaquetar y desplegar (Docker, funciones serverless, inferencia en el edge) cierra el ciclo: un proyecto en producción vale más que diez en local.",
+      "keywords": ["docker", "kubernetes", "serverless", "deploy", "cloud"],
+      "resources": [
+        { "title": "Docker: primeros pasos", "url": "https://docs.docker.com/get-started/", "type": "documentación" },
+        { "title": "Cloudflare Workers AI", "url": "https://developers.cloudflare.com/workers-ai/", "type": "documentación" },
+        { "title": "GitHub Actions (CI/CD)", "url": "https://docs.github.com/en/actions", "type": "documentación" }
+      ]
+    },
+    {
+      "id": "habilidades-blandas",
+      "title": "Habilidades blandas y comunicación técnica",
+      "level": "básico",
+      "why": "Escribir bien, explicar decisiones, colaborar en open source y aprender a aprender son las habilidades que más se valoran cuando la parte mecánica del código se automatiza.",
+      "keywords": ["open source", "community"],
+      "resources": [
+        { "title": "Cursos de escritura técnica (Google)", "url": "https://developers.google.com/tech-writing", "type": "curso" },
+        { "title": "Cómo contribuir a open source", "url": "https://opensource.guide/es/how-to-contribute/", "type": "guía" },
+        { "title": "Learning How to Learn (Coursera, modo oyente gratuito)", "url": "https://www.coursera.org/learn/learning-how-to-learn", "type": "curso" }
+      ]
+    }
+  ]
+}

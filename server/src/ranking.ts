@@ -9,7 +9,8 @@ import type { NormalizedItem } from './normalize.js';
  * - topic:      suma de pesos de palabras clave encontradas (título ×2, extracto ×1), tope 40.
  * - onDevice:   +30 si el artículo trata de on-device / IA pequeña (puntaje on-device ≥ umbral),
  *               más el puntaje on-device en sí (tope 30). Es el "empujón" editorial del periódico.
- * - recency:    0..30, decae exponencialmente con vida media de 36 horas.
+ * - recency:    0..30, decae exponencialmente con vida media de 36 horas
+ *               (tope 10 si el feed no informa fecha: no premiamos lo que no sabemos).
  * - popularity: 0..10, log10 de puntos de Hacker News (si existen).
  *
  * Cada artículo expone `scoreBreakdown` y `matchedKeywords` para que se pueda auditar.
@@ -88,6 +89,7 @@ export const AI_TERMS = /\b(ai|a\.i\.|artificial intelligence|machine learning|m
 
 export const ON_DEVICE_THRESHOLD = 10;
 export const RECENCY_HALF_LIFE_HOURS = 36;
+export const UNDATED_RECENCY_CAP = 10;
 
 export interface Match {
   score: number;
@@ -148,7 +150,7 @@ export function scoreItem(item: NormalizedItem, fallback: SectionId, now = new D
   const breakdown = {
     topic: round(Math.min(40, topicMatch.score)),
     onDevice: round(onDevice),
-    recency: round(recencyScore(item.publishedAt, now)),
+    recency: round(Math.min(item.undated ? UNDATED_RECENCY_CAP : 30, recencyScore(item.publishedAt, now))),
     popularity: round(popularityScore(item.points)),
   };
   const { points: _p, comments: _c, ...rest } = item;

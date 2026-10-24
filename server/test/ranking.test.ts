@@ -84,3 +84,11 @@ describe('pipeline', () => {
     expect(out[0].section).toBe('on-device');
   });
 });
+
+describe('notas sin fecha', () => {
+  it('no reciben más de 10 puntos de recencia', () => {
+    const a = scoreItem(item('Gemma on-device', '', 0, { undated: true }), 'modelos', now);
+    expect(a.scoreBreakdown.recency).toBe(10);
+    expect(a.undated).toBe(true);
+  });
+});

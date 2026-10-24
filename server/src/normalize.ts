@@ -100,6 +100,8 @@ export interface NormalizedItem {
   image?: string;
   author?: string;
   discussionUrl?: string;
+  /** El feed no informó fecha: `publishedAt` es la fecha en que lo vimos por primera vez. */
+  undated?: boolean;
   points?: number;
   comments?: number;
 }
@@ -109,7 +111,8 @@ export function normalizeItem(raw: RawItem, source: Pick<SourceConfig, 'id' | 'n
   const title = stripHtml(raw.title);
   const link = raw.link?.trim();
   if (!title || !link || !/^https?:\/\//i.test(link)) return null;
-  const published = toIsoDate(raw.isoDate, raw.pubDate) ?? now.toISOString();
+  const parsedDate = toIsoDate(raw.isoDate, raw.pubDate);
+  const published = parsedDate ?? now.toISOString();
   // fechas en el futuro (zonas horarias mal declaradas) se acotan a "ahora"
   const publishedAt = new Date(published) > now ? now.toISOString() : published;
   const text = stripHtml(raw.contentSnippet || raw.summary || raw.content)
@@ -126,6 +129,7 @@ export function normalizeItem(raw: RawItem, source: Pick<SourceConfig, 'id' | 'n
     image,
     author: raw.author ? stripHtml(raw.author).slice(0, 80) : undefined,
     discussionUrl: raw.extra?.discussionUrl,
+    ...(parsedDate ? {} : { undated: true }),
     points: raw.extra?.points,
     comments: raw.extra?.comments,
   };

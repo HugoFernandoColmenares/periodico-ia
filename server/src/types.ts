@@ -49,6 +49,7 @@ export interface Article {
   image?: string;
   author?: string;
   discussionUrl?: string;
+  undated?: boolean;
   section: SectionId;
   score: number;
   scoreBreakdown: { topic: number; onDevice: number; recency: number; popularity: number };

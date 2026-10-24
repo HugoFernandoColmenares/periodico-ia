@@ -70,6 +70,7 @@ export function refresh(sources: SourceConfig[] = SOURCES, fetcher = fetchSource
   inFlight = (async () => {
     const now = new Date();
     const active = sources.filter((s) => s.enabled);
+    const firstSeen = new Map((current?.articles ?? []).filter((a) => a.undated).map((a) => [a.id, a.publishedAt]));
     const results = await Promise.allSettled(active.map((s) => fetcher(s)));
     const statuses: SourceStatus[] = [];
     const perSource: { source: SourceConfig; items: NormalizedItem[] }[] = [];
@@ -77,7 +78,10 @@ export function refresh(sources: SourceConfig[] = SOURCES, fetcher = fetchSource
       const r = results[i];
       const base = { id: source.id, name: source.name, homepage: source.homepage, enabled: true, note: source.note, lastFetch: now.toISOString() };
       if (r.status === 'fulfilled') {
-        const items = processSourceItems(r.value, source, now);
+        // Para feeds sin fecha conservamos la fecha en que vimos la nota por primera vez
+        const items = processSourceItems(r.value, source, now).map((it) =>
+          it.undated && firstSeen.has(it.id) ? { ...it, publishedAt: firstSeen.get(it.id)! } : it,
+        );
         perSource.push({ source, items });
         statuses.push({ ...base, ok: true, items: items.length });
       } else {

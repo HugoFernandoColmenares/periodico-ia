@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { dateTime, longDate } from '../format';
 import { type DataMode, SECTION_LABELS, SECTION_ORDER, type SectionId } from '../models';
 
-export type View = 'portada' | SectionId | 'aprender';
+export type View = 'portada' | SectionId | 'aprender' | 'opciones';
 
 @Component({
   selector: 'app-masthead',
@@ -25,13 +25,14 @@ export type View = 'portada' | SectionId | 'aprender';
         <a href="#" [class.active]="view() === id" [class.main]="id === 'on-device'" (click)="go($event, id)">{{ labels[id] }}</a>
       }
       <a href="#" [class.active]="view() === 'aprender'" (click)="go($event, 'aprender')">Qué aprender</a>
+      <a href="/opciones" [class.active]="view() === 'opciones'" (click)="go($event, 'opciones')">Opciones</a>
     </nav>
     @if (mode() === 'sample') {
       <p class="notice notice--sample" role="status">
         Estás viendo <strong>datos de muestra</strong>: no fue posible obtener noticias en vivo ni hay una edición en caché.
       </p>
     } @else if (mode() === 'cache') {
-      <p class="notice" role="status">Mostrando la última edición guardada mientras llegan noticias frescas.</p>
+      <p class="notice" role="status">Mostrando la última edición guardada; se renueva según la frecuencia elegida en Opciones.</p>
     }
   `,
   host: { class: 'masthead' },

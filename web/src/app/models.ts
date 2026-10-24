@@ -74,3 +74,20 @@ export const SECTION_LABELS: Record<SectionId, string> = {
 };
 
 export const SECTION_ORDER: SectionId[] = ['on-device', 'modelos', 'investigacion', 'industria', 'herramientas'];
+
+export type RefreshMode = 'interval' | 'daily';
+
+export interface RefreshSettings {
+  mode: RefreshMode;
+  intervalMinutes: number;
+  dailyTime: string;
+  timezone: string;
+}
+
+export interface SettingsResponse extends RefreshSettings {
+  lastRefreshAt: string | null;
+  nextRefreshAt: string | null;
+  allowedIntervals: number[];
+  minIntervalMinutes: number;
+  adminTokenRequired: boolean;
+}

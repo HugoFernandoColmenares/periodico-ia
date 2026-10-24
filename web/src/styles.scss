@@ -129,6 +129,33 @@ button:disabled { opacity: 0.5; cursor: default; }
 .learning__type { margin-left: 4px; font-family: var(--sans); font-size: 11px; color: var(--ink-soft); }
 .learning__foot { font-size: 12px; color: var(--ink-soft); }
 
+/* ---------- Opciones ---------- */
+.options { display: block; }
+.options__layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px; padding: 12px 0 4px; }
+.options__form { min-width: 0; }
+.options__fieldset { margin: 0 0 14px; padding: 10px 16px 12px; border: 1px solid var(--rule); background: #fffdf6; }
+.options__fieldset legend { padding: 0 6px; font-family: var(--display); font-size: 19px; font-weight: 700; }
+.options__choice {
+  display: flex; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px dotted var(--rule-soft); cursor: pointer;
+}
+.options__choice:last-of-type { border-bottom: 0; }
+.options__choice input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.options__choice.selected span { font-weight: 700; color: var(--accent); }
+.options__hint { margin: 6px 0 0; font-family: var(--sans); font-size: 12px; font-style: italic; color: var(--ink-soft); }
+.options__field { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 12px; }
+.options__field label { flex: 0 0 100%; font-family: var(--sans); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.options__field input, .options__field select { font: inherit; padding: 6px 10px; border: 1px solid var(--rule); background: #fffdf6; color: var(--ink); min-width: 0; max-width: 100%; }
+.options__zone { font-style: italic; color: var(--ink-soft); }
+.options__msg { margin: 0 0 12px; max-width: none; }
+.options__actions button, .options__refresh {
+  font-family: var(--sans); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  border: 1px solid var(--rule); background: var(--ink); color: var(--paper); padding: 9px 16px; cursor: pointer;
+}
+.options__refresh { background: transparent; color: var(--ink); margin-top: 6px; }
+.options__status { align-self: start; padding: 14px 18px; border: 3px double var(--rule); }
+.options__status p { margin: 4px 0; }
+.options__next { font-family: var(--display); font-size: 20px; line-height: 1.25; margin: 10px 0 !important; padding: 8px 0; border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft); }
+
 /* ---------- Pie ---------- */
 .footer { margin-top: 28px; padding-top: 10px; border-top: 4px double var(--rule); font-size: 13px; }
 .footer h2 { font-size: 16px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -152,4 +179,8 @@ button:disabled { opacity: 0.5; cursor: default; }
   .toolbar { flex-direction: column; align-items: stretch; }
   .toolbar__search { max-width: none; }
   .card__excerpt { text-align: left; }
+  .options__layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .options__status { order: -1; }
+  .options__field select, .options__field input { width: 100%; }
+  .options__actions button, .options__refresh { width: 100%; }
 }

@@ -5,3 +5,4 @@ coverage/
 server/data/cache.json
 *.log
 .env
+server/data/settings.json

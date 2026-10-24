@@ -19,6 +19,7 @@ export class NewsService {
   readonly error = signal<string | null>(null);
 
   readonly liveSources = computed(() => this.sources().filter((s) => s.ok).length);
+  private sampleRetries = 0;
 
   async loadFrontPage(): Promise<void> {
     this.loading.set(true);
@@ -28,6 +29,10 @@ export class NewsService {
       this.frontPage.set(res.items);
       this.mode.set(res.mode);
       this.fetchedAt.set(res.fetchedAt);
+      // Recién arrancado el servidor puede estar sirviendo la muestra mientras descarga: reintentamos
+      if (res.mode === 'sample' && this.sampleRetries++ < 3) {
+        setTimeout(() => void Promise.all([this.loadFrontPage(), this.loadSources()]), 10_000);
+      }
     } catch {
       this.error.set('No pudimos conectar con el servidor de noticias. Intenta de nuevo en unos minutos.');
     } finally {

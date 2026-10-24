@@ -1,0 +1,22 @@
+{
+  "name": "periodico-ia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "El Periódico de la IA: noticias de IA con foco en on-device e IA pequeña",
+  "author": "Hugo Colmenares",
+  "license": "MIT",
+  "workspaces": ["server", "web"],
+  "engines": { "node": ">=22.22.0" },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,magenta \"npm run dev -w server\" \"npm run start -w web\"",
+    "build": "npm run build -w web && npm run build -w server",
+    "start": "npm run start -w server",
+    "test": "npm run test -w server && npm run test -w web",
+    "lint": "npm run lint -w server && npm run lint -w web",
+    "check:sources": "npm run check:sources -w server",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
